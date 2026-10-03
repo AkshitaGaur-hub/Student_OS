@@ -1,0 +1,48 @@
+export const DEMO_ROLES = [
+  {
+    role: 'admin',
+    label: 'Admin / President',
+    email: 'admin@studentos.com',
+    password: 'admin123',
+    badgeText: '👑 Admin',
+    tagline: 'Full Access & Approvals',
+    description: 'Events, member registry, financial management, approvals, and system settings.',
+  },
+  {
+    role: 'volunteer',
+    label: 'Volunteer',
+    email: 'volunteer@studentos.com',
+    password: 'volunteer123',
+    badgeText: '🤝 Volunteer',
+    tagline: 'Event Check-in & Tasks',
+    description: 'Live QR check-in verification desk, event operations, and fundraiser tasks.',
+  },
+  {
+    role: 'student',
+    label: 'Student / Member',
+    email: 'student@studentos.com',
+    password: 'student123',
+    badgeText: '🎓 Student',
+    tagline: 'Event RSVP & Wallet',
+    description: 'Event tickets wallet, merchandise catalog purchases, and community bulletins.',
+  },
+  {
+    role: 'organizer',
+    label: 'Event Organizer',
+    email: 'organizer@studentos.com',
+    password: 'organizer123',
+    badgeText: '📋 Organizer',
+    tagline: 'Events & Bulletins',
+    description: 'Create & schedule events, post official announcements, manage tasks.',
+  },
+  {
+    role: 'treasurer',
+    label: 'Treasurer',
+    email: 'treasurer@studentos.com',
+    password: 'treasurer123',
+    badgeText: '💰 Treasurer',
+    tagline: 'Treasury & Budgets',
+    description: 'Income tracking, expense approvals, financial summaries, and reimbursement review.',
+  },
+];
+

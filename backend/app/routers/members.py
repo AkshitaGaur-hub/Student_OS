@@ -3,18 +3,19 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.routers.dependencies import require_roles
+from app.models.user import User
+from app.dependencies import require_roles, get_current_user
 from app.schemas.member import MemberCreate, MemberResponse, MemberUpdate
 from app.services import member_service
 
-router = APIRouter(prefix="/members", tags=["members"])
+router = APIRouter(prefix="/members", tags=["Members"])
 
 
 @router.post("/", response_model=MemberResponse, status_code=status.HTTP_201_CREATED)
 def create_member(
     member_in: MemberCreate,
     db: Session = Depends(get_db),
-    user: dict = Depends(require_roles("ADMIN")),
+    user: User = Depends(require_roles("admin", "organizer")),
 ):
     return member_service.create_member(db, member_in)
 
@@ -24,7 +25,7 @@ def get_members(
     skip: int = 0,
     limit: int = 100,
     db: Session = Depends(get_db),
-    user: dict = Depends(require_roles("ADMIN", "TREASURER", "VOLUNTEER", "MEMBER")),
+    user: User = Depends(require_roles("admin", "treasurer", "volunteer", "organizer", "member", "student")),
 ):
     return member_service.get_members(db, skip=skip, limit=limit)
 
@@ -33,7 +34,7 @@ def get_members(
 def get_member(
     id: int,
     db: Session = Depends(get_db),
-    user: dict = Depends(require_roles("ADMIN", "TREASURER", "VOLUNTEER", "MEMBER")),
+    user: User = Depends(require_roles("admin", "treasurer", "volunteer", "organizer", "member", "student")),
 ):
     db_member = member_service.get_member_by_id(db, member_id=id)
     if not db_member:
@@ -49,7 +50,7 @@ def update_member(
     id: int,
     member_in: MemberUpdate,
     db: Session = Depends(get_db),
-    user: dict = Depends(require_roles("ADMIN")),
+    user: User = Depends(require_roles("admin", "organizer")),
 ):
     db_member = member_service.update_member(db, member_id=id, member_in=member_in)
     if not db_member:
@@ -64,7 +65,7 @@ def update_member(
 def delete_member(
     id: int,
     db: Session = Depends(get_db),
-    user: dict = Depends(require_roles("ADMIN")),
+    user: User = Depends(require_roles("admin")),
 ):
     success = member_service.delete_member(db, member_id=id)
     if not success:
@@ -73,3 +74,4 @@ def delete_member(
             detail="Member not found",
         )
     return None
+
