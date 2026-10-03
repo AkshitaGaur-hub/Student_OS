@@ -1,99 +1,75 @@
+from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from typing import List
 
 from app.database import get_db
-from app.models.user import User
-from app.models.member import Member
-from app.schemas.member import MemberCreate, MemberUpdate, MemberResponse
-from app.dependencies import get_current_user, require_roles
+from app.routers.dependencies import require_roles
+from app.schemas.member import MemberCreate, MemberResponse, MemberUpdate
+from app.services import member_service
 
-router = APIRouter(prefix="/members", tags=["Members"])
-
-
-@router.get("/", response_model=List[MemberResponse])
-def list_members(
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
-):
-    """List all members. Requires authentication."""
-    return db.query(Member).all()
-
-
-@router.get("/{member_id}", response_model=MemberResponse)
-def get_member(
-    member_id: int,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
-):
-    """Get a specific member by ID. Requires authentication."""
-    member = db.query(Member).filter(Member.id == member_id).first()
-    if not member:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Member not found")
-    return member
+router = APIRouter(prefix="/members", tags=["members"])
 
 
 @router.post("/", response_model=MemberResponse, status_code=status.HTTP_201_CREATED)
 def create_member(
-    data: MemberCreate,
+    member_in: MemberCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_roles("admin", "organizer")),
+    user: dict = Depends(require_roles("ADMIN")),
 ):
-    """Create a new member. Requires admin or organizer role."""
-    # Check user exists
-    user = db.query(User).filter(User.id == data.user_id).first()
-    if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-
-    # Check for duplicate user_id
-    existing = db.query(Member).filter(Member.user_id == data.user_id).first()
-    if existing:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="This user is already a member")
-
-    # Check for duplicate student_id
-    existing_sid = db.query(Member).filter(Member.student_id == data.student_id).first()
-    if existing_sid:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Student ID already registered")
-
-    member = Member(**data.model_dump())
-    db.add(member)
-    db.commit()
-    db.refresh(member)
-    return member
+    return member_service.create_member(db, member_in)
 
 
-@router.put("/{member_id}", response_model=MemberResponse)
+@router.get("/", response_model=List[MemberResponse])
+def get_members(
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db),
+    user: dict = Depends(require_roles("ADMIN", "TREASURER", "VOLUNTEER", "MEMBER")),
+):
+    return member_service.get_members(db, skip=skip, limit=limit)
+
+
+@router.get("/{id}", response_model=MemberResponse)
+def get_member(
+    id: int,
+    db: Session = Depends(get_db),
+    user: dict = Depends(require_roles("ADMIN", "TREASURER", "VOLUNTEER", "MEMBER")),
+):
+    db_member = member_service.get_member_by_id(db, member_id=id)
+    if not db_member:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Member not found",
+        )
+    return db_member
+
+
+@router.put("/{id}", response_model=MemberResponse)
 def update_member(
-    member_id: int,
-    data: MemberUpdate,
+    id: int,
+    member_in: MemberUpdate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_roles("admin", "organizer")),
+    user: dict = Depends(require_roles("ADMIN")),
 ):
-    """Update a member. Requires admin or organizer role."""
-    member = db.query(Member).filter(Member.id == member_id).first()
-    if not member:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Member not found")
-
-    update_data = data.model_dump(exclude_unset=True)
-    for key, value in update_data.items():
-        setattr(member, key, value)
-
-    db.commit()
-    db.refresh(member)
-    return member
+    db_member = member_service.update_member(db, member_id=id, member_in=member_in)
+    if not db_member:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Member not found",
+        )
+    return db_member
 
 
-@router.delete("/{member_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_member(
-    member_id: int,
+    id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_roles("admin")),
+    user: dict = Depends(require_roles("ADMIN")),
 ):
-    """Delete a member. Requires admin role."""
-    member = db.query(Member).filter(Member.id == member_id).first()
-    if not member:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Member not found")
-
-    db.delete(member)
-    db.commit()
-
+    success = member_service.delete_member(db, member_id=id)
+    if not success:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Member not found",
+        )
+    return None
