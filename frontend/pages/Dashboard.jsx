@@ -46,10 +46,12 @@ function StatCard({ label, value, icon: Icon, to, subtext }) {
 }
 
 export default function Dashboard() {
-  const user = authService.getUser() || { name: 'User', role: 'Member' };
-  const role = (user.role || 'Member').toLowerCase();
-  const isAdmin = role.includes('admin') || role.includes('president');
-  const isTreasurer = role.includes('treasurer');
+  const [user, setUser] = useState(authService.getUser() || { name: 'User', role: 'student' });
+  const role = (user.role || 'student').toLowerCase();
+  const isAdmin = role === 'admin';
+  const isTreasurer = role === 'treasurer';
+  const isOrganizer = role === 'organizer';
+  const isManagement = isAdmin || isTreasurer || isOrganizer;
 
   const [events, setEvents] = useState([]);
   const [memberCount, setMemberCount] = useState(null);
@@ -58,12 +60,19 @@ export default function Dashboard() {
   const [error, setError] = useState('');
 
   useEffect(() => {
+    // Refresh user from backend so role is accurate after page refresh
+    authService.getCurrentUser().then((u) => {
+      if (u) setUser(u);
+    });
+  }, []);
+
+  useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       setError('');
       try {
         const evtsPromise = eventsService.getEvents();
-        const membersPromise = (isAdmin || isTreasurer) ? membersService.getMembers({ limit: 100 }) : Promise.resolve(null);
+        const membersPromise = isManagement ? membersService.getMembers({ limit: 100 }) : Promise.resolve(null);
         const financePromise = (isAdmin || isTreasurer) ? financeService.getFinanceSummary() : Promise.resolve(null);
 
         const [evtsRes, membersRes, financeRes] = await Promise.allSettled([
@@ -89,7 +98,7 @@ export default function Dashboard() {
       }
     };
     fetchData();
-  }, [isAdmin, isTreasurer]);
+  }, [isManagement, isAdmin, isTreasurer]);
 
   const upcomingEvents = events.filter(
     (e) => e.status === 'upcoming' || e.status === 'ongoing'
@@ -130,10 +139,11 @@ export default function Dashboard() {
           <h1 className="text-2xl font-bold text-slate-900">Dashboard</h1>
           <p className="text-sm text-slate-500">
             Welcome back, <span className="font-semibold text-slate-700">{user.name || 'Member'}</span>.
+            {' '}<span className="text-xs text-slate-400 capitalize">({role})</span>
           </p>
         </div>
         <div className="flex items-center gap-2">
-          {isAdmin && (
+          {(isAdmin || isOrganizer) && (
             <Link to="/events">
               <Button size="sm">
                 <Plus className="w-4 h-4 mr-1" /> New Event
@@ -165,7 +175,7 @@ export default function Dashboard() {
           to="/events"
         />
 
-        {(isAdmin || isTreasurer) && (
+        {(isManagement) && (
           <StatCard
             label="Registered Members"
             value={memberCount !== null ? memberCount : '0'}
@@ -284,7 +294,7 @@ export default function Dashboard() {
                 <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
               </Link>
 
-              {(isAdmin || isTreasurer) && (
+              {(isManagement) && (
                 <>
                   <Link
                     to="/members"
@@ -297,16 +307,18 @@ export default function Dashboard() {
                     <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
                   </Link>
 
-                  <Link
-                    to="/finance"
-                    className="flex items-center justify-between p-2.5 rounded-md text-slate-700 hover:bg-slate-50 border border-slate-100 transition-colors"
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <DollarSign className="w-4 h-4 text-sky-600" />
-                      <span className="font-medium">Finance & Treasury</span>
-                    </div>
-                    <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
-                  </Link>
+                  {(isAdmin || isTreasurer) && (
+                    <Link
+                      to="/finance"
+                      className="flex items-center justify-between p-2.5 rounded-md text-slate-700 hover:bg-slate-50 border border-slate-100 transition-colors"
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <DollarSign className="w-4 h-4 text-sky-600" />
+                        <span className="font-medium">Finance & Treasury</span>
+                      </div>
+                      <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
+                    </Link>
+                  )}
                 </>
               )}
             </div>

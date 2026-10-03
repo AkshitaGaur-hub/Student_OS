@@ -12,7 +12,7 @@ export default function Auth() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
-  const [role, setRole] = useState('MEMBER');
+  const [role, setRole] = useState('student');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -27,7 +27,12 @@ export default function Auth() {
     try {
       if (isRegister) {
         await authService.register({ name, email, password, role });
-        setSuccess('Account registered successfully. Redirecting...');
+        setSuccess('Account registered successfully! Please sign in.');
+        setTimeout(() => {
+          setIsRegister(false);
+          setSuccess('');
+        }, 1500);
+        return;
       } else {
         await authService.login({ email, password });
         setSuccess('Authentication successful. Redirecting...');
@@ -92,10 +97,11 @@ export default function Auth() {
               value={role}
               onChange={(e) => setRole(e.target.value)}
               options={[
-                { value: 'MEMBER', label: 'Member' },
-                { value: 'VOLUNTEER', label: 'Volunteer' },
-                { value: 'TREASURER', label: 'Treasurer' },
-                { value: 'ADMIN', label: 'Admin / President' },
+                { value: 'student', label: 'Student / Member' },
+                { value: 'volunteer', label: 'Volunteer' },
+                { value: 'organizer', label: 'Organizer' },
+                { value: 'treasurer', label: 'Treasurer' },
+                { value: 'admin', label: 'Admin' },
               ]}
             />
           </>

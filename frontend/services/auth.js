@@ -1,53 +1,52 @@
 import api from './api';
 
+/**
+ * Normalise a raw user object from the backend.
+ * The backend returns `full_name`; the rest of the app expects `name`.
+ */
+function normalizeUser(raw) {
+  if (!raw) return null;
+  return {
+    ...raw,
+    name: raw.name || raw.full_name || raw.email?.split('@')[0] || 'User',
+    role: (raw.role || 'student').toLowerCase(),
+  };
+}
+
 export const authService = {
+  /**
+   * Login with email+password.
+   * On success: store token, then fetch /auth/me to persist the real user
+   * (including the actual role stored in the database).
+   */
   login: async (credentials) => {
-    try {
-      const response = await api.post('/auth/login', credentials);
-      if (response.data.access_token) {
-        localStorage.setItem('token', response.data.access_token);
-        if (response.data.user) {
-          localStorage.setItem('user', JSON.stringify(response.data.user));
+    const response = await api.post('/auth/login', credentials);
+    if (response.data.access_token) {
+      localStorage.setItem('token', response.data.access_token);
+      // Always fetch the canonical user from /auth/me so role is accurate
+      try {
+        const meRes = await api.get('/auth/me');
+        if (meRes.data) {
+          const user = normalizeUser(meRes.data);
+          localStorage.setItem('user', JSON.stringify(user));
         }
+      } catch {
+        // If /auth/me fails, clear any stale user so the app does not show
+        // incorrect role information.
+        localStorage.removeItem('user');
       }
-      return response.data;
-    } catch (err) {
-      // If backend auth endpoint is mock / demo mode
-      if (credentials.email) {
-        const dummyUser = {
-          name: credentials.email.split('@')[0],
-          email: credentials.email,
-          role: credentials.email.includes('admin') ? 'ADMIN' : 'MEMBER',
-        };
-        localStorage.setItem('token', 'mock_jwt_token');
-        localStorage.setItem('user', JSON.stringify(dummyUser));
-        return { access_token: 'mock_jwt_token', user: dummyUser };
-      }
-      throw err;
     }
+    return response.data;
   },
 
+  /**
+   * Register a new account.
+   * Backend /auth/register returns the UserResponse (not a token).
+   * Redirect to login after registration.
+   */
   register: async (userData) => {
-    try {
-      const response = await api.post('/auth/register', userData);
-      if (response.data.access_token) {
-        localStorage.setItem('token', response.data.access_token);
-        if (response.data.user) {
-          localStorage.setItem('user', JSON.stringify(response.data.user));
-        }
-      }
-      return response.data;
-    } catch (err) {
-      // Fallback for hackathon testing if backend auth endpoint isn't wired
-      const demoUser = {
-        name: userData.name || userData.email.split('@')[0],
-        email: userData.email,
-        role: userData.role || 'MEMBER',
-      };
-      localStorage.setItem('token', 'mock_jwt_token');
-      localStorage.setItem('user', JSON.stringify(demoUser));
-      return { access_token: 'mock_jwt_token', user: demoUser };
-    }
+    const response = await api.post('/auth/register', userData);
+    return response.data;
   },
 
   logout: () => {
@@ -55,23 +54,31 @@ export const authService = {
     localStorage.removeItem('user');
   },
 
+  /**
+   * Fetch the current user from the backend and update localStorage.
+   * Falls back to cached value if the request fails.
+   */
   getCurrentUser: async () => {
     try {
       const response = await api.get('/auth/me');
       if (response.data) {
-        localStorage.setItem('user', JSON.stringify(response.data));
-        return response.data;
+        const user = normalizeUser(response.data);
+        localStorage.setItem('user', JSON.stringify(user));
+        return user;
       }
     } catch {
-      // return local storage user
+      // Network error or token expired — return cached value
     }
     return authService.getUser();
   },
 
   getUser: () => {
     try {
-      const user = localStorage.getItem('user');
-      return user ? JSON.parse(user) : null;
+      const raw = localStorage.getItem('user');
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      // Ensure older cached values are also normalised
+      return normalizeUser(parsed);
     } catch {
       return null;
     }

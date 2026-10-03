@@ -27,10 +27,11 @@ export default function DashboardLayout() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const user = authService.getUser();
-    if (user) {
-      setCurrentUser(user);
-    }
+    // Always refresh user from backend on layout mount so role is
+    // accurate after a page refresh (token valid but localStorage user stale).
+    authService.getCurrentUser().then((user) => {
+      if (user) setCurrentUser(user);
+    });
   }, []);
 
   const handleLogout = () => {
@@ -38,40 +39,41 @@ export default function DashboardLayout() {
     navigate('/auth');
   };
 
-  const role = currentUser.role || 'Member';
+  const role = currentUser.role || 'student';
   const roleLower = role.toLowerCase();
-  const isAdmin = roleLower.includes('admin') || roleLower.includes('president');
-  const isTreasurer = roleLower.includes('treasurer');
-  const isVolunteer = roleLower.includes('volunteer');
+  const isAdmin = roleLower === 'admin';
+  const isTreasurer = roleLower === 'treasurer';
+  const isVolunteer = roleLower === 'volunteer';
+  const isOrganizer = roleLower === 'organizer';
 
-  // Base navigation definition with role constraints
   const allNavItems = [
-    { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, roles: ['all'] },
-    { to: '/members', label: 'Members', icon: Users, roles: ['admin', 'treasurer'] },
-    { to: '/events', label: 'Events', icon: Calendar, roles: ['all'] },
-    { to: '/tickets', label: 'Tickets', icon: Ticket, roles: ['all'] },
-    { to: '/announcements', label: 'Announcements', icon: Megaphone, roles: ['admin', 'member'] },
-    { to: '/merchandise', label: 'Merchandise', icon: ShoppingBag, roles: ['admin', 'member'] },
-    { to: '/orders', label: 'Orders', icon: Package, roles: ['admin', 'treasurer', 'member'] },
-    { to: '/fundraisers', label: 'Fundraisers', icon: HeartHandshake, roles: ['admin', 'volunteer'] },
-    { to: '/finance', label: 'Finance', icon: DollarSign, roles: ['admin', 'treasurer'] },
-    { to: '/profile', label: 'Profile', icon: User, roles: ['all'] },
+    { to: '/dashboard',    label: 'Dashboard',    icon: LayoutDashboard, roles: ['all'] },
+    { to: '/members',      label: 'Members',       icon: Users,           roles: ['admin', 'treasurer', 'organizer'] },
+    { to: '/events',       label: 'Events',        icon: Calendar,        roles: ['all'] },
+    { to: '/tickets',      label: 'Tickets',       icon: Ticket,          roles: ['all'] },
+    { to: '/announcements',label: 'Announcements', icon: Megaphone,       roles: ['admin', 'organizer', 'member'] },
+    { to: '/merchandise',  label: 'Merchandise',   icon: ShoppingBag,     roles: ['admin', 'member'] },
+    { to: '/orders',       label: 'Orders',        icon: Package,         roles: ['admin', 'treasurer', 'member'] },
+    { to: '/fundraisers',  label: 'Fundraisers',   icon: HeartHandshake,  roles: ['admin', 'organizer', 'volunteer'] },
+    { to: '/finance',      label: 'Finance',       icon: DollarSign,      roles: ['admin', 'treasurer'] },
+    { to: '/profile',      label: 'Profile',       icon: User,            roles: ['all'] },
   ];
 
   const visibleNavItems = allNavItems.filter((item) => {
     if (item.roles.includes('all')) return true;
     if (isAdmin) return true;
     if (isTreasurer && item.roles.includes('treasurer')) return true;
+    if (isOrganizer && (item.roles.includes('volunteer') || item.roles.includes('organizer'))) return true;
     if (isVolunteer && item.roles.includes('volunteer')) return true;
-    if (!isAdmin && !isTreasurer && !isVolunteer && item.roles.includes('member')) return true;
+    if (!isAdmin && !isTreasurer && !isOrganizer && !isVolunteer && item.roles.includes('member')) return true;
     return false;
   });
 
   const getBadgeVariant = (r) => {
     const l = (r || '').toLowerCase();
-    if (l.includes('admin') || l.includes('president')) return 'danger';
-    if (l.includes('treasurer')) return 'warning';
-    if (l.includes('volunteer')) return 'info';
+    if (l === 'admin') return 'danger';
+    if (l === 'treasurer') return 'warning';
+    if (l === 'organizer' || l === 'volunteer') return 'info';
     return 'success';
   };
 
