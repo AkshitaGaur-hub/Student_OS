@@ -8,6 +8,7 @@ import DashboardLayout from '../layouts/DashboardLayout';
 
 // Components
 import ProtectedRoute from '../components/ProtectedRoute';
+import ChatbotWidget from '../components/ChatbotWidget';
 
 // Pages
 import Home from '../pages/Home';
@@ -69,6 +70,10 @@ export default function App() {
           <Route path="/finance" element={<Finance />} />
         </Route>
       </Routes>
+
+      {/* Global AI Chatbot Widget */}
+      <ChatbotWidget />
     </BrowserRouter>
   );
 }
+
