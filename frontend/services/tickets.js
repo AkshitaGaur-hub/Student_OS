@@ -20,6 +20,11 @@ export const ticketsService = {
     const response = await api.post(`/tickets/${ticketIdOrCode}/check-in`);
     return response.data;
   },
+
+  verifyTicketByCode: async (ticketCode) => {
+    const response = await api.post('/tickets/verify', { ticket_code: ticketCode });
+    return response.data;
+  },
 };
 
 export default ticketsService;

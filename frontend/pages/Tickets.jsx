@@ -11,6 +11,20 @@ import ticketsService from '../services/tickets';
 import eventsService from '../services/events';
 import authService from '../services/auth';
 import { Ticket, QrCode, CheckCircle2, AlertCircle, ShoppingCart } from 'lucide-react';
+import QRCode from 'qrcode';
+
+const QRCodeImage = ({ text }) => {
+  const [src, setSrc] = useState('');
+
+  useEffect(() => {
+    QRCode.toDataURL(text, { width: 120, margin: 1 })
+      .then(url => setSrc(url))
+      .catch(err => console.error(err));
+  }, [text]);
+
+  if (!src) return null;
+  return <img src={src} alt="QR Code" className="w-20 h-20 mx-auto rounded shadow-sm border border-slate-200" />;
+};
 
 const statusVariant = (s) => {
   const m = { active: 'success', used: 'secondary', cancelled: 'danger', refunded: 'warning' };
@@ -69,8 +83,8 @@ export default function Tickets() {
     setCheckInMessage('');
     setCheckInError('');
     try {
-      const ticket = await ticketsService.checkInTicket(ticketCode.trim());
-      setCheckInMessage(`Check-in successful. Ticket ${ticket.ticket_code || ticketCode} status: ${ticket.status}.`);
+      const response = await ticketsService.verifyTicketByCode(ticketCode.trim());
+      setCheckInMessage(response.message);
       setTicketCode('');
     } catch (err) {
       const msg = err.response?.data?.detail || err.message || 'Check-in failed.';
@@ -196,7 +210,8 @@ export default function Tickets() {
                     <th className="pb-3 pr-4 font-semibold text-slate-600">Event</th>
                     <th className="pb-3 pr-4 font-semibold text-slate-600">Price Paid</th>
                     <th className="pb-3 pr-4 font-semibold text-slate-600">Status</th>
-                    <th className="pb-3 font-semibold text-slate-600">Purchased</th>
+                    <th className="pb-3 pr-4 font-semibold text-slate-600">Purchased</th>
+                    <th className="pb-3 font-semibold text-slate-600 text-center">QR Code</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -214,7 +229,10 @@ export default function Tickets() {
                       <td className="py-3 pr-4">
                         <Badge variant={statusVariant(t.status)}>{t.status}</Badge>
                       </td>
-                      <td className="py-3 text-xs text-slate-500">{formatDate(t.purchased_at)}</td>
+                      <td className="py-3 text-xs text-slate-500 pr-4">{formatDate(t.purchased_at)}</td>
+                      <td className="py-3 text-center">
+                        <QRCodeImage text={t.ticket_code} />
+                      </td>
                     </tr>
                   ))}
                 </tbody>
