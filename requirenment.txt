@@ -1,0 +1,17 @@
+FOR BACKEND + FASTAPI + DATABASE
+* python environment
+ a) python -m venv venv
+ b) venv\Scripts\activate
+
+ pip install fastapi uvicorn sqlalchemy psycopg2-binary pydantic-settings python-dotenv
+
+ pip install python-jose[cryptography] passlib[bcrypt]
+
+ pip install python-multipart
+
+
+ fastapi
+uvicorn
+sqlalchemy
+psycopg2-binary
+python-dotenv
