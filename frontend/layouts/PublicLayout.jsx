@@ -24,7 +24,7 @@ export default function PublicLayout() {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-800">
+    <div className="min-h-screen flex flex-col bg-[#F7F5F7] text-slate-800">
       {/* Header */}
       <header className="sticky top-0 z-40 bg-white border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">

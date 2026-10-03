@@ -4,7 +4,7 @@ import { GraduationCap, ArrowLeft } from 'lucide-react';
 
 export default function AuthLayout() {
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-[#F7F5F7] flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
         <Link to="/" className="inline-flex items-center gap-2 text-sky-700 font-bold text-2xl hover:text-sky-800">
           <GraduationCap className="w-8 h-8" />
