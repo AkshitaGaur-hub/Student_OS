@@ -698,8 +698,8 @@ npm run build
 
 | Name | Role |
 |---|---|
-| Akshita Gaur | Frontend Developer |
-| Garima | Frontend Developer |
+| Akshita  | Full Stack Developer |
+| Garima Verma| Frontend Developer |
 | Mamta Bhati | Backend Developer |
 
 ---
