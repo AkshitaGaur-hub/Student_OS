@@ -14,6 +14,7 @@ class Member(Base):
     phone = Column(String(20), nullable=True)
     membership_status = Column(String(50), nullable=False, default="active")  # active, inactive, alumni
     joined_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    expiry_date = Column(DateTime(timezone=True), nullable=True)
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
     # Relationships
