@@ -1,4 +1,4 @@
-# ?? Student OS — Student Organization Management System
+#  Student OS â€” Student Organization Management System
 
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?style=flat-square&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
 [![React](https://img.shields.io/badge/React-18-61DAFB?style=flat-square&logo=react&logoColor=black)](https://react.dev/)
@@ -8,11 +8,11 @@
 [![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-ORM-D71F00?style=flat-square&logo=python&logoColor=white)](https://sqlalchemy.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=flat-square)](LICENSE)
 
-> A full-stack platform for colleges and universities to manage student organizations — from member registration and event ticketing to merchandise sales, fundraisers, and financial reporting.
+> A full-stack platform for colleges and universities to manage student organizations â€” from member registration and event ticketing to merchandise sales, fundraisers, and financial reporting.
 
 ---
 
-## ?? Table of Contents
+## Table of Contents
 
 - [Problem Statement](#-problem-statement)
 - [Solution](#-solution)
@@ -33,9 +33,9 @@
 
 ---
 
-## ? Problem Statement
+##  Problem Statement
 
-Student organizations at universities often rely on disconnected tools — WhatsApp groups for announcements, spreadsheets for finances, Google Forms for event registration, and cash for merchandise. This fragmented setup leads to:
+Student organizations at universities often rely on disconnected tools â€” WhatsApp groups for announcements, spreadsheets for finances, Google Forms for event registration, and cash for merchandise. This fragmented setup leads to:
 
 - Poor visibility into member engagement and attendance
 - No centralized financial tracking or reporting
@@ -44,13 +44,13 @@ Student organizations at universities often rely on disconnected tools — WhatsAp
 
 ---
 
-## ? Solution
+##  Solution
 
 **Student OS** is a unified management platform that consolidates all student organization operations into a single, role-secured web application. It provides organizers with a real-time dashboard while giving members a seamless interface to register, buy tickets, order merchandise, and stay informed.
 
 ---
 
-## ? Key Features
+##  Key Features
 
 | Feature | Description |
 |---|---|
@@ -68,7 +68,7 @@ Student organizations at universities often rely on disconnected tools — WhatsAp
 
 ---
 
-## ?? Tech Stack
+##  Tech Stack
 
 ### Backend
 | Technology | Role |
@@ -93,7 +93,7 @@ Student organizations at universities often rely on disconnected tools — WhatsAp
 
 ---
 
-## ?? System Architecture
+##  System Architecture
 
 ```mermaid
 graph TD
@@ -133,7 +133,7 @@ graph LR
 
 ---
 
-## ?? Application Flow
+##  Application Flow
 
 ```mermaid
 flowchart TD
@@ -164,7 +164,7 @@ flowchart TD
 
 ---
 
-## ?? Authentication Flow
+##  Authentication Flow
 
 ```mermaid
 sequenceDiagram
@@ -199,7 +199,7 @@ sequenceDiagram
 
 ---
 
-## ?? Database Flow
+##  Database Flow
 
 ```mermaid
 erDiagram
@@ -294,7 +294,7 @@ erDiagram
 
 ---
 
-## ?? API Overview
+##  API Overview
 
 | Method | Endpoint | Description | Auth |
 |---|---|---|---|
@@ -322,28 +322,28 @@ erDiagram
 
 ---
 
-## ?? Project Structure
+##  Project Structure
 
 ```
 Student_OS/
 +-- backend/
-¦   +-- app/
-¦   ¦   +-- main.py                 # FastAPI app, CORS, router registration
-¦   ¦   +-- database.py             # SQLAlchemy engine, session, Base
-¦   ¦   +-- dependencies.py         # JWT, bcrypt, role-checking helpers
-¦   ¦   +-- models/                 # SQLAlchemy table definitions
-¦   ¦   +-- routers/                # API route handlers
-¦   ¦   +-- schemas/                # Pydantic request/response models
-¦   ¦   +-- services/               # Business logic layer
-¦   +-- .env                        # DATABASE_URL, JWT_SECRET
-¦   +-- requirements.txt
-¦   +-- seed.py                     # Database seeding script
-¦   +-- migrate.py
-¦
+Â¦   +-- app/
+Â¦   Â¦   +-- main.py                 # FastAPI app, CORS, router registration
+Â¦   Â¦   +-- database.py             # SQLAlchemy engine, session, Base
+Â¦   Â¦   +-- dependencies.py         # JWT, bcrypt, role-checking helpers
+Â¦   Â¦   +-- models/                 # SQLAlchemy table definitions
+Â¦   Â¦   +-- routers/                # API route handlers
+Â¦   Â¦   +-- schemas/                # Pydantic request/response models
+Â¦   Â¦   +-- services/               # Business logic layer
+Â¦   +-- .env                        # DATABASE_URL, JWT_SECRET
+Â¦   +-- requirements.txt
+Â¦   +-- seed.py                     # Database seeding script
+Â¦   +-- migrate.py
+Â¦
 +-- frontend/
     +-- src/
-    ¦   +-- main.jsx                # React entry point
-    ¦   +-- App.jsx                 # Route definitions
+    Â¦   +-- main.jsx                # React entry point
+    Â¦   +-- App.jsx                 # Route definitions
     +-- pages/                      # Page components
     +-- components/                 # Shared UI components
     +-- layouts/                    # PublicLayout, AuthLayout, DashboardLayout
@@ -355,7 +355,7 @@ Student_OS/
 
 ---
 
-## ?? Setup & Installation
+##  Setup & Installation
 
 ### Prerequisites
 
@@ -405,7 +405,7 @@ npm install
 
 ---
 
-## ?? Running the Application
+##  Running the Application
 
 ### Backend
 
@@ -428,7 +428,7 @@ App available at: `http://localhost:5173`
 
 ---
 
-## ?? API Documentation
+##  API Documentation
 
 | Interface | URL |
 |---|---|
@@ -438,7 +438,7 @@ App available at: `http://localhost:5173`
 
 ---
 
-## ?? Screenshots
+##  Screenshots
 
 > _Screenshots to be added here._
 
@@ -454,7 +454,7 @@ App available at: `http://localhost:5173`
 
 ---
 
-## ?? Future Scope
+##  Future Scope
 
 - [ ] Email notifications for event registrations and ticket confirmations
 - [ ] QR code generation for ticket check-in
@@ -463,16 +463,11 @@ App available at: `http://localhost:5173`
 - [ ] Real-time announcements using WebSockets
 - [ ] Mobile app (React Native) for on-the-go access
 - [ ] OAuth 2.0 / SSO integration with university identity providers
-- [ ] Multi-organization support — one platform, many clubs
+- [ ] Multi-organization support â€” one platform, many clubs
 
 ---
 
-## ?? Contributors
-
-| Name | Role |
-|---|---|
-| Akshita Gaur | Full-Stack Developer |
 
 ---
 
-> Built with ?? for student organizations everywhere.
+> Built to simplify and streamline student organizations.
