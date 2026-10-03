@@ -183,15 +183,67 @@ def seed_database():
                 "content": "Join us for exciting events, club projects, and networking opportunities this term.",
                 "priority": "normal",
                 "target_audience": "all",
-                "creator_id": user_objs["admin@org.edu"].id,
             },
             {
                 "title": "Spring Gala Tickets Now Available",
                 "content": "Early-bird tickets for Spring Gala 2026 are live. Reserve your spot today!",
                 "priority": "high",
                 "target_audience": "all",
-                "creator_id": user_objs["organizer@org.edu"].id,
             },
+            {
+                "title": "General Body Meeting: Oct 15",
+                "content": "Mandatory meeting for all members to discuss upcoming semester goals and elect new committee heads. See you at Room 101.",
+                "priority": "high",
+                "target_audience": "all",
+            },
+            {
+                "title": "Volunteer Recruitment for Tech Workshop",
+                "content": "We need 5 volunteers to help manage the registration desk and coordinate food at the upcoming AI & Web3 Tech Workshop.",
+                "priority": "normal",
+                "target_audience": "volunteer",
+            },
+            {
+                "title": "Intramural Sports Deadline Extended",
+                "content": "The deadline to register for the Campus Sports Tournament has been extended to Friday. Don't miss out!",
+                "priority": "normal",
+                "target_audience": "all",
+            },
+            {
+                "title": "New Club Merchandise Drop!",
+                "content": "Check out our new premium cotton hoodies and snapbacks available in the online store. Limited stock!",
+                "priority": "normal",
+                "target_audience": "member",
+            },
+            {
+                "title": "Annual Hackathon Sponsorship Secured",
+                "content": "Great news! TechCorp has agreed to sponsor our Annual Hackathon. Increased prize pool for all tracks.",
+                "priority": "normal",
+                "target_audience": "all",
+            },
+            {
+                "title": "Important: Membership Renewals",
+                "content": "Please check your membership status. If your membership expires this month, renew it via the dashboard to keep your perks.",
+                "priority": "high",
+                "target_audience": "member",
+            },
+            {
+                "title": "Venue Change for Code Review Session",
+                "content": "The peer code review session will now be held in the Library Study Room B instead of the Innovation Lab.",
+                "priority": "normal",
+                "target_audience": "member",
+            },
+            {
+                "title": "Student Leadership Scholarship",
+                "content": "Applications are now open for the Annual Student Leadership Scholarship. Deadline is next month.",
+                "priority": "normal",
+                "target_audience": "student",
+            },
+            {
+                "title": "Food Drive Kickoff",
+                "content": "Our annual food drive starts next Monday. Drop off non-perishable items at the student center.",
+                "priority": "normal",
+                "target_audience": "all",
+            }
         ]
 
         for a in announcements_data:
@@ -245,17 +297,30 @@ def seed_database():
 
         # ─── 7. Orders ──────────────────────────────────────────────
         if member_objs and product_objs:
-            existing_orders = db.query(Order).first()
-            if not existing_orders:
-                order1 = Order(
-                    member_id=member_objs[0].id,
-                    total_amount=65.00,
-                    status="confirmed",
-                )
-                db.add(order1)
-                db.flush()
-                db.add(OrderItem(order_id=order1.id, product_id=product_objs[0].id, quantity=1, unit_price=20.00, subtotal=20.00))
-                db.add(OrderItem(order_id=order1.id, product_id=product_objs[1].id, quantity=1, unit_price=45.00, subtotal=45.00))
+            count_orders = db.query(Order).count()
+            if count_orders < 10:
+                orders_to_create = [
+                    (member_objs[0].id, "confirmed", [(product_objs[0], 1), (product_objs[1], 1)]),
+                    (member_objs[1].id, "pending", [(product_objs[2], 2)]),
+                    (member_objs[2].id, "delivered", [(product_objs[0], 2), (product_objs[2], 1)]),
+                    (member_objs[0].id, "cancelled", [(product_objs[1], 1)]),
+                    (member_objs[1].id, "confirmed", [(product_objs[0], 1), (product_objs[2], 1)]),
+                    (member_objs[2].id, "processing", [(product_objs[1], 2)]),
+                    (member_objs[0].id, "delivered", [(product_objs[0], 1)]),
+                    (member_objs[1].id, "delivered", [(product_objs[2], 3)]),
+                    (member_objs[2].id, "confirmed", [(product_objs[1], 1), (product_objs[2], 2)]),
+                    (member_objs[0].id, "pending", [(product_objs[0], 3)]),
+                    (member_objs[1].id, "processing", [(product_objs[1], 1)]),
+                    (member_objs[2].id, "cancelled", [(product_objs[2], 1)]),
+                ]
+                
+                for m_id, status, items in orders_to_create:
+                    total = sum(p.price * q for p, q in items)
+                    order = Order(member_id=m_id, total_amount=total, status=status)
+                    db.add(order)
+                    db.flush()
+                    for p, q in items:
+                        db.add(OrderItem(order_id=order.id, product_id=p.id, quantity=q, unit_price=p.price, subtotal=p.price * q))
         print("  [+] Orders created")
 
         # ─── 8. Fundraiser & Tasks ──────────────────────────────────

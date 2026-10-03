@@ -92,5 +92,9 @@ def get_my_orders(db: Session, user_id: int) -> List[Order]:
     return db.query(Order).filter(Order.member_id == member.id).all()
 
 
+def get_all_orders(db: Session) -> List[Order]:
+    return db.query(Order).all()
+
+
 def get_order_by_id(db: Session, order_id: int) -> Optional[Order]:
     return db.query(Order).filter(Order.id == order_id).first()

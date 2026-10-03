@@ -15,8 +15,7 @@ from app.models import (
     Income, Expense, Reimbursement,
 )
 
-# Import all API routers
-from app.routers import auth, members, events, tickets, announcements, products, finance
+from app.routers import auth, members, events, tickets, announcements, products, finance, orders
 
 # Ensure tables exist in Neon
 Base.metadata.create_all(bind=engine)
@@ -44,6 +43,7 @@ app.include_router(tickets.router)
 app.include_router(announcements.router)
 app.include_router(products.router)
 app.include_router(finance.router)
+app.include_router(orders.router)
 
 
 @app.get("/", tags=["General"])

@@ -5,11 +5,18 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.member import Member
 from app.models.user import User
-from app.dependencies import get_current_user
+from app.dependencies import get_current_user, require_roles
 from app.schemas.order import OrderCreate, OrderResponse
 from app.services import order_service
 
 router = APIRouter(prefix="/orders", tags=["Orders"])
+
+@router.get("/", response_model=List[OrderResponse])
+def get_all_orders(
+    db: Session = Depends(get_db),
+    user: User = Depends(require_roles("admin", "organizer", "treasurer")),
+):
+    return order_service.get_all_orders(db)
 
 
 @router.post("/", response_model=OrderResponse, status_code=status.HTTP_201_CREATED)

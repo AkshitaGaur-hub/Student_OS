@@ -44,8 +44,8 @@ class AnnouncementResponse(BaseModel):
     content: str
     priority: str
     target_audience: str
-    creator_id: Optional[int]
-    published_at: datetime
+    creator_id: Optional[int] = None
+    published_at: Optional[datetime] = None
     created_at: datetime
     updated_at: datetime
 
