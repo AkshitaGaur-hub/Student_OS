@@ -10,16 +10,19 @@ class Event(Base):
     title = Column(String(255), nullable=False)
     description = Column(Text, nullable=True)
     location = Column(String(255), nullable=True)
+    venue = Column(String(255), nullable=True)
     event_date = Column(DateTime(timezone=True), nullable=False)
     end_date = Column(DateTime(timezone=True), nullable=True)
     max_capacity = Column(Integer, nullable=True)
     ticket_price = Column(Numeric(10, 2), nullable=False, default=0.00)
+    non_member_price = Column(Numeric(10, 2), nullable=True)
     status = Column(String(50), nullable=False, default="upcoming")  # upcoming, ongoing, completed, cancelled
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
     __table_args__ = (
         CheckConstraint("ticket_price >= 0", name="ck_events_ticket_price_non_negative"),
+        CheckConstraint("non_member_price >= 0 OR non_member_price IS NULL", name="ck_events_non_member_price_non_negative"),
         CheckConstraint("max_capacity > 0 OR max_capacity IS NULL", name="ck_events_max_capacity_positive"),
     )
 

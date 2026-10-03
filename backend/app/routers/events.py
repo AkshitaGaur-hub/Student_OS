@@ -1,75 +1,84 @@
-from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+from typing import List
 
 from app.database import get_db
-from app.routers.dependencies import require_roles
-from app.schemas.event import EventCreate, EventResponse, EventUpdate
-from app.services import event_service
+from app.models.user import User
+from app.models.event import Event
+from app.schemas.event import EventCreate, EventUpdate, EventResponse
+from app.dependencies import get_current_user, require_roles
 
-router = APIRouter(prefix="/events", tags=["events"])
+router = APIRouter(prefix="/events", tags=["Events"])
+
+
+@router.get("/", response_model=List[EventResponse])
+def list_events(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """List all events. Requires authentication."""
+    return db.query(Event).all()
+
+
+@router.get("/{event_id}", response_model=EventResponse)
+def get_event(
+    event_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Get a specific event by ID. Requires authentication."""
+    event = db.query(Event).filter(Event.id == event_id).first()
+    if not event:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Event not found")
+    return event
 
 
 @router.post("/", response_model=EventResponse, status_code=status.HTTP_201_CREATED)
 def create_event(
-    event_in: EventCreate,
+    data: EventCreate,
     db: Session = Depends(get_db),
-    user: dict = Depends(require_roles("ADMIN")),
+    current_user: User = Depends(require_roles("admin", "organizer")),
 ):
-    return event_service.create_event(db, event_in)
+    """Create a new event. Requires admin or organizer role."""
+    event = Event(**data.model_dump())
+    db.add(event)
+    db.commit()
+    db.refresh(event)
+    return event
 
 
-@router.get("/", response_model=List[EventResponse])
-def get_events(
-    skip: int = 0,
-    limit: int = 100,
-    db: Session = Depends(get_db),
-    user: dict = Depends(require_roles("ADMIN", "TREASURER", "VOLUNTEER", "MEMBER")),
-):
-    return event_service.get_events(db, skip=skip, limit=limit)
-
-
-@router.get("/{id}", response_model=EventResponse)
-def get_event(
-    id: int,
-    db: Session = Depends(get_db),
-    user: dict = Depends(require_roles("ADMIN", "TREASURER", "VOLUNTEER", "MEMBER")),
-):
-    db_event = event_service.get_event_by_id(db, event_id=id)
-    if not db_event:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Event not found",
-        )
-    return db_event
-
-
-@router.put("/{id}", response_model=EventResponse)
+@router.put("/{event_id}", response_model=EventResponse)
 def update_event(
-    id: int,
-    event_in: EventUpdate,
+    event_id: int,
+    data: EventUpdate,
     db: Session = Depends(get_db),
-    user: dict = Depends(require_roles("ADMIN")),
+    current_user: User = Depends(require_roles("admin", "organizer")),
 ):
-    db_event = event_service.update_event(db, event_id=id, event_in=event_in)
-    if not db_event:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Event not found",
-        )
-    return db_event
+    """Update an event. Requires admin or organizer role."""
+    event = db.query(Event).filter(Event.id == event_id).first()
+    if not event:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Event not found")
+
+    update_data = data.model_dump(exclude_unset=True)
+    for key, value in update_data.items():
+        setattr(event, key, value)
+
+    db.commit()
+    db.refresh(event)
+    return event
 
 
-@router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{event_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_event(
-    id: int,
+    event_id: int,
     db: Session = Depends(get_db),
-    user: dict = Depends(require_roles("ADMIN")),
+    current_user: User = Depends(require_roles("admin")),
 ):
-    success = event_service.delete_event(db, event_id=id)
-    if not success:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Event not found",
-        )
-    return None
+    """Delete an event. Requires admin role."""
+    event = db.query(Event).filter(Event.id == event_id).first()
+    if not event:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Event not found")
+
+    db.delete(event)
+    db.commit()
+
