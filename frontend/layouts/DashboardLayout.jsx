@@ -78,7 +78,7 @@ export default function DashboardLayout() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 flex flex-col md:flex-row">
+    <div className="min-h-screen bg-[#F7F5F7] flex flex-col md:flex-row">
       {/* Mobile Header */}
       <div className="md:hidden bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between sticky top-0 z-30">
         <Link to="/dashboard" className="flex items-center gap-2 text-sky-700 font-bold text-lg">

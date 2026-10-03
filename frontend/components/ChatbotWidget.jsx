@@ -252,18 +252,18 @@ export default function ChatbotWidget() {
         <button
           type="button"
           onClick={() => setIsOpen(true)}
-          className="group relative flex items-center gap-2.5 px-4 py-3 bg-gradient-to-r from-sky-600 via-sky-700 to-indigo-700 text-white rounded-full shadow-2xl hover:shadow-sky-500/25 hover:scale-105 active:scale-95 transition-all duration-200 border border-white/20 backdrop-blur-md cursor-pointer"
+          className="group relative flex items-center gap-2.5 px-4 py-3 bg-gradient-to-r from-[#714B67] via-[#5C3C54] to-[#4A2F43] text-white rounded-full shadow-2xl hover:shadow-[#714B67]/25 hover:scale-105 active:scale-95 transition-all duration-200 border border-white/20 backdrop-blur-md cursor-pointer"
           aria-label="Open AI Assistant"
         >
           <div className="relative">
             <Bot className="w-5 h-5 text-white" />
-            <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-emerald-400 rounded-full ring-2 ring-sky-700 animate-pulse" />
+            <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-emerald-400 rounded-full ring-2 ring-[#714B67] animate-pulse" />
           </div>
           <div className="text-left hidden sm:block">
             <span className="text-xs font-bold block leading-tight flex items-center gap-1">
               Ask AI Assistant <Sparkles className="w-3 h-3 text-amber-300" />
             </span>
-            <span className="text-[10px] text-sky-200 font-normal">FAQs</span>
+            <span className="text-[10px] text-pink-200 font-normal">FAQs</span>
           </div>
         </button>
       )}
@@ -272,16 +272,16 @@ export default function ChatbotWidget() {
       {isOpen && (
         <div className="w-[380px] sm:w-[420px] h-[580px] max-h-[85vh] bg-white rounded-2xl shadow-2xl border border-slate-200/90 flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-200">
           {/* Header */}
-          <div className="bg-gradient-to-r from-slate-900 via-sky-950 to-indigo-950 text-white p-4 flex items-center justify-between border-b border-slate-800 shadow-md">
+          <div className="bg-gradient-to-r from-[#241521] via-[#382233] to-[#4A2F43] text-white p-4 flex items-center justify-between border-b border-[#382233] shadow-md">
             <div className="flex items-center gap-3">
-              <div className="relative w-9 h-9 rounded-xl bg-gradient-to-tr from-sky-500 to-indigo-600 p-0.5 flex items-center justify-center shadow-inner">
+              <div className="relative w-9 h-9 rounded-xl bg-gradient-to-tr from-[#8A5C7E] to-[#714B67] p-0.5 flex items-center justify-center shadow-inner">
                 <Bot className="w-5 h-5 text-white" />
-                <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-400 border-2 border-slate-900 rounded-full" />
+                <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-400 border-2 border-[#241521] rounded-full" />
               </div>
               <div>
                 <div className="flex items-center gap-1.5">
                   <h3 className="text-sm font-bold tracking-tight">Student_OS AI</h3>
-                  <span className="text-[10px] px-1.5 py-0.2 bg-sky-500/20 text-sky-300 rounded font-mono border border-sky-500/30">
+                  <span className="text-[10px] px-1.5 py-0.2 bg-[#714B67]/30 text-pink-200 rounded font-mono border border-[#714B67]/40">
                     Pro
                   </span>
                 </div>
