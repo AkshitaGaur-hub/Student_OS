@@ -1,4 +1,3 @@
-```python
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
@@ -27,14 +26,12 @@ def register(
 ):
     """Register a new user. Passwords are hashed before storage."""
 
-    # Validate role
     if data.role not in VALID_ROLES:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Invalid role. Must be one of: {', '.join(sorted(VALID_ROLES))}",
         )
 
-    # Check for duplicate email
     existing = db.query(User).filter(User.email == data.email).first()
 
     if existing:
@@ -43,7 +40,6 @@ def register(
             detail="A user with this email already exists",
         )
 
-    # Create user
     user = User(
         full_name=data.name,
         email=data.email,
@@ -65,12 +61,10 @@ def login(
 ):
     """Login using email and password."""
 
-    # Find user
     user = db.query(User).filter(
         User.email == data.email.strip()
     ).first()
 
-    # Verify credentials
     if not user or not verify_password(
         data.password,
         user.hashed_password,
@@ -81,14 +75,12 @@ def login(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    # Check account status
     if not user.is_active:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Account is deactivated",
         )
 
-    # Create JWT
     access_token = create_access_token(
         data={"sub": str(user.id)}
     )
@@ -106,4 +98,3 @@ def get_me(
     """Get the currently authenticated user's information."""
 
     return current_user
-```

@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 
+
 from app.database import engine, get_db, Base
 
 # Import all models so Base knows about every table
@@ -35,7 +36,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include all routers so they appear in Swagger /docs
+
 app.include_router(auth.router)
 app.include_router(members.router)
 app.include_router(events.router)
